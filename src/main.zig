@@ -6,7 +6,7 @@ const c = @cImport({
 const overlaps = c.SDL_HasIntersection;
 
 const FPS = 60;
-const DELTA_TIME_SEC: f32 = 1.0/@intToFloat(f32, FPS);
+const DELTA_TIME_SEC: f32 = 1.0/@as(f32, FPS);
 const WINDOW_WIDTH = 800;
 const WINDOW_HEIGHT = 600;
 const BACKGROUND_COLOR = 0xFF181818;
@@ -35,15 +35,15 @@ const Target = struct {
     dead: bool = false,
 };
 
-fn init_targets() [TARGET_ROWS*TARGET_COLS]Target {
-    var targets: [TARGET_ROWS*TARGET_COLS]Target = undefined;
+fn init_targets() [TARGET_ROWS * TARGET_COLS]Target {
+    var targets: [TARGET_ROWS * TARGET_COLS]Target = undefined;
     var row: usize = 0;
     while (row < TARGET_ROWS) : (row += 1) {
         var col: usize = 0;
         while (col < TARGET_COLS) : (col += 1) {
-            targets[row*TARGET_COLS + col] = Target {
-                .x = TARGET_GRID_X + (TARGET_WIDTH + TARGET_PADDING_X)*@intToFloat(f32, col),
-                .y = TARGET_GRID_Y + TARGET_PADDING_Y*@intToFloat(f32, row)
+            targets[row * TARGET_COLS + col] = Target {
+                .x = TARGET_GRID_X + (TARGET_WIDTH + TARGET_PADDING_X) * @as(f32, col),
+                .y = TARGET_GRID_Y + TARGET_PADDING_Y * @as(f32, row)
             };
         }
     }
@@ -66,18 +66,18 @@ var started = false;
 
 fn make_rect(x: f32, y: f32, w: f32, h: f32) c.SDL_Rect {
     return c.SDL_Rect {
-        .x = @floatToInt(i32, x),
-        .y = @floatToInt(i32, y),
-        .w = @floatToInt(i32, w),
-        .h = @floatToInt(i32, h)
+        .x = @intFromFloat(x),
+        .y = @intFromFloat(y),
+        .w = @intFromFloat(w),
+        .h = @intFromFloat(h)
     };
 }
 
 fn set_color(renderer: *c.SDL_Renderer, color: u32) void {
-    const r = @truncate(u8, (color >> (0*8)) & 0xFF);
-    const g = @truncate(u8, (color >> (1*8)) & 0xFF);
-    const b = @truncate(u8, (color >> (2*8)) & 0xFF);
-    const a = @truncate(u8, (color >> (3*8)) & 0xFF);
+    const r: u8 = @truncate((color >> (0*8)) & 0xFF);
+    const g: u8 = @truncate((color >> (1*8)) & 0xFF);
+    const b: u8 = @truncate((color >> (2*8)) & 0xFF);
+    const a: u8 = @truncate((color >> (3*8)) & 0xFF);
     _ = c.SDL_SetRenderDrawColor(renderer, r, g, b, a);
 }
 
@@ -99,7 +99,7 @@ fn horz_collision(dt: f32) void {
         proj_dx *= -1;
         return;
     }
-    for (targets_pool) |*it| {
+    for (&targets_pool) |*it| {
         if (!it.dead and overlaps(&proj_rect(proj_nx, proj_y), &target_rect(it.*)) != 0) {
             it.dead = true;
             proj_dx *= -1;
@@ -120,7 +120,7 @@ fn vert_collision(dt: f32) void {
         proj_dy *= -1;
         return;
     }
-    for (targets_pool) |*it| {
+    for (&targets_pool) |*it| {
         if (!it.dead and overlaps(&proj_rect(proj_x, proj_ny), &target_rect(it.*)) != 0) {
             it.dead = true;
             proj_dy *= -1;

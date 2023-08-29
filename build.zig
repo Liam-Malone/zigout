@@ -27,6 +27,8 @@ pub fn build(b: *std.build.Builder) void {
         .optimize = optimize,
     });
 
+    exe.linkSystemLibrary("SDL2");
+    exe.linkSystemLibrary("c");
     b.installArtifact(exe);
     const run_cmd = b.addRunArtifact(exe);
 
